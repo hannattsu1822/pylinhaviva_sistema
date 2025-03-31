@@ -44,39 +44,40 @@
             </div>
 
             <!-- Seção Histórico do Equipamento -->
-            <div class="form-section">
-                <h2 class="section-title"><i class="fas fa-history"></i> Histórico do Equipamento</h2>
+<!-- Seção Histórico do Equipamento -->
+<div class="form-section">
+    <h2 class="section-title"><i class="fas fa-history"></i> Histórico do Equipamento</h2>
 
-<div class="form-group">
-    <label class="form-label">Ano de Fabricação</label>
-    <input type="number" class="form-control" name="ano_fabricacao" 
-           min="1900" max="<?= date('Y') ?>" 
-           step="1" value="<?= date('Y') ?>">
-    <small class="form-text text-muted">Formato: AAAA (ex: 2023)</small>
+    <div class="form-group">
+        <label class="form-label">Ano de Fabricação</label>
+        <input type="number" class="form-control" name="ano_fabricacao" 
+               min="1900" max="{{ current_year }}" 
+               step="1" value="{{ current_year }}">
+        <small class="form-text text-muted">Formato: AAAA (ex: 2023)</small>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">O transformador foi reformado?*</label>
+        <div class="radio-group">
+            <label class="radio-option">
+                <input type="radio" name="reformado" value="Sim" id="reformado-sim">
+                <span class="radiomark"></span>
+                <span>Sim</span>
+            </label>
+            <label class="radio-option">
+                <input type="radio" name="reformado" value="Não" checked>
+                <span class="radiomark"></span>
+                <span>Não</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="form-group" id="data-reforma-group" style="display: none;">
+        <label class="form-label">Data da Reforma*</label>
+        <input type="date" class="form-control" name="data_reforma" pattern="\d{4}-\d{2}-\d{2}">
+        <small class="form-text text-muted">Formato: AAAA-MM-DD</small>
+    </div>
 </div>
-
-                <div class="form-group">
-                    <label class="form-label">O transformador foi reformado?*</label>
-                    <div class="radio-group">
-                        <label class="radio-option">
-                            <input type="radio" name="reformado" value="Sim" id="reformado-sim">
-                            <span class="radiomark"></span>
-                            <span>Sim</span>
-                        </label>
-                        <label class="radio-option">
-                            <input type="radio" name="reformado" value="Não" checked>
-                            <span class="radiomark"></span>
-                            <span>Não</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group" id="data-reforma-group" style="display: none;">
-                    <label class="form-label">Data da Reforma*</label>
-                    <input type="date" class="form-control" name="data_reforma" pattern="\d{4}-\d{2}-\d{2}">
-                    <small class="form-text text-muted">Formato: AAAA-MM-DD</small>
-                </div>
-            </div>
 
             <!-- Seção Tanque -->
             <div class="form-section">
