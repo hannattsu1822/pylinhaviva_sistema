@@ -44,42 +44,41 @@
             </div>
 
             <!-- Seção Histórico do Equipamento -->
-<!-- Seção Histórico do Equipamento -->
-<div class="form-section">
-    <h2 class="section-title"><i class="fas fa-history"></i> Histórico do Equipamento</h2>
+            <div class="form-section">
+                <h2 class="section-title"><i class="fas fa-history"></i> Histórico do Equipamento</h2>
 
-    <div class="form-group">
-        <label class="form-label">Ano de Fabricação</label>
-        <input type="number" class="form-control" name="ano_fabricacao" 
-               min="1900" max="{{ current_year }}" 
-               step="1" value="{{ current_year }}">
-        <small class="form-text text-muted">Formato: AAAA (ex: 2023)</small>
-    </div>
+                <div class="form-group">
+                    <label class="form-label">Ano de Fabricação*</label>
+                    <input type="number" class="form-control" name="ano_fabricacao" 
+                           min="1900" max="{{ current_year }}"
+                           step="1" value="{{ current_year }}" required>
+                    <small class="form-text text-muted">Formato: AAAA (ex: 2023)</small>
+                </div>
 
-    <div class="form-group">
-        <label class="form-label">O transformador foi reformado?*</label>
-        <div class="radio-group">
-            <label class="radio-option">
-                <input type="radio" name="reformado" value="1" id="reformado-sim">
-                <span class="radiomark"></span>
-                <span>Sim</span>
-            </label>
-            <label class="radio-option">
-                <input type="radio" name="reformado" value="0" checked>
-                <span class="radiomark"></span>
-                <span>Não</span>
-            </label>
-        </div>
-    </div>
+                <div class="form-group">
+                    <label class="form-label">O transformador foi reformado?*</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="reformado" value="1" id="reformado-sim">
+                            <span class="radiomark"></span>
+                            <span>Sim</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="reformado" value="0" checked>
+                            <span class="radiomark"></span>
+                            <span>Não</span>
+                        </label>
+                    </div>
+                </div>
 
-    <div class="form-group" id="ano-reforma-group" style="display: none;">
-        <label class="form-label">Ano da Reforma*</label>
-        <input type="number" class="form-control" name="ano_reforma" 
-               min="1900" max="{{ current_year }}"
-               step="1" value="{{ current_year }}">
-        <small class="form-text text-muted">Formato: AAAA (ex: 2023)</small>
-    </div>
-</div>
+                <div class="form-group" id="ano-reforma-group" style="display: none;">
+                    <label class="form-label">Ano da Reforma*</label>
+                    <input type="number" class="form-control" name="ano_reforma" 
+                           min="1900" max="{{ current_year }}"
+                           step="1" value="{{ current_year }}">
+                    <small class="form-text text-muted">Formato: AAAA (ex: 2023)</small>
+                </div>
+            </div>
 
             <!-- Seção Tanque -->
             <div class="form-section">
@@ -466,15 +465,15 @@
             });
         }
 
-        // Mostrar/ocultar data de reforma
+        // Mostrar/ocultar ano de reforma
         const reformadoRadios = document.querySelectorAll('input[name="reformado"]');
-        const dataReformaGroup = document.getElementById('data-reforma-group');
+        const anoReformaGroup = document.getElementById('ano-reforma-group');
 
         reformadoRadios.forEach(radio => {
             radio.addEventListener('change', function () {
-                dataReformaGroup.style.display = this.value === 'Sim' ? 'block' : 'none';
-                if (this.value !== 'Sim') {
-                    document.querySelector('input[name="data_reforma"]').value = '';
+                anoReformaGroup.style.display = this.value === '1' ? 'block' : 'none';
+                if (this.value !== '1') {
+                    document.querySelector('input[name="ano_reforma"]').value = '';
                 }
             });
         });
@@ -492,14 +491,14 @@
                 return false;
             }
 
-            // Verificar se reformado=Sim mas não tem data de reforma
-            const reformadoSim = document.querySelector('input[name="reformado"][value="Sim"]')?.checked;
-            const dataReforma = document.querySelector('input[name="data_reforma"]')?.value;
+            // Verificar se reformado=Sim mas não tem ano de reforma
+            const reformadoSim = document.querySelector('input[name="reformado"][value="1"]')?.checked;
+            const anoReforma = document.querySelector('input[name="ano_reforma"]')?.value;
 
-            if (reformadoSim && !dataReforma) {
+            if (reformadoSim && !anoReforma) {
                 e.preventDefault();
-                alert('Por favor, informe a data da reforma');
-                document.getElementById('data-reforma-group').scrollIntoView({ behavior: 'smooth' });
+                alert('Por favor, informe o ano da reforma');
+                document.getElementById('ano-reforma-group').scrollIntoView({ behavior: 'smooth' });
                 return false;
             }
 
