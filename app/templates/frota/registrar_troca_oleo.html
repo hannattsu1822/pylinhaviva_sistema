@@ -1,0 +1,45 @@
+{% extends "frota/base_frota.html" %}
+
+{% block title %}Registrar Troca de Óleo{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h4><i class="bi bi-droplet"></i> Registrar Troca de Óleo</h4>
+</div>
+
+<div class="content-body">
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('main.salvar_troca_oleo') }}">
+                <div class="mb-3">
+                    <label class="form-label">Veículo</label>
+                    <select name="veiculo_id" class="form-select" required>
+                        {% for veiculo in veiculos %}
+                        <option value="{{ veiculo.id }}">{{ veiculo.placa }} - {{ veiculo.modelo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Horímetro no momento da troca</label>
+                    <input type="number" step="0.1" name="horimetro" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Data da Troca</label>
+                    <input type="date" name="data_troca" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Observações (opcional)</label>
+                    <textarea name="observacoes" class="form-control" rows="2"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Salvar Registro
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

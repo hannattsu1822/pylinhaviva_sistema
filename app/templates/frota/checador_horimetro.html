@@ -1,0 +1,152 @@
+{% extends "frota/base_frota.html" %}
+
+{% block title %}Controle de Horímetro{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/frota/main_frota.css') }}">
+<style>
+    /* Estilos melhorados para o status */
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .bg-success {
+        background-color: #28a745 !important;
+        color: white !important;
+    }
+
+    .bg-warning {
+        background-color: #ffc107 !important;
+        color: #212529 !important;
+    }
+
+    .bg-danger {
+        background-color: #dc3545 !important;
+        color: white !important;
+    }
+
+    .bg-secondary {
+        background-color: #6c757d !important;
+        color: white !important;
+    }
+
+    /* Melhorias na tabela */
+    .table-horimetro {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+    }
+
+    .table-horimetro th {
+        font-weight: 600;
+        color: #495057;
+        white-space: nowrap;
+        padding-right: 15px;
+    }
+
+    .table-horimetro td {
+        font-weight: 500;
+        text-align: right;
+    }
+
+    /* Card improvements */
+    .card-veiculo {
+        border-radius: 10px;
+        border-left: 5px solid;
+        transition: transform 0.2s;
+    }
+
+    .card-veiculo:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-subtitle {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="content-header">
+    <h4><i class="bi bi-speedometer2"></i> Controle de Horímetro</h4>
+    <div class="breadcrumb">
+        <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+        <span class="separator">/</span>
+        <a href="{{ url_for('main.frota') }}">Frota</a>
+        <span class="separator">/</span>
+        <span class="active">Horímetro</span>
+    </div>
+</header>
+
+<div class="content-body">
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title"><i class="bi bi-info-circle"></i> Informações</h5>
+            <p class="card-text">
+                Controle de horímetro para monitoramento das trocas de óleo (deve ser realizada a cada 300 horas de
+                operação).
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for veiculo in dados %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card card-veiculo border-{{ veiculo.status_class }} shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="card-title mb-1">{{ veiculo.placa }}</h5>
+                            <p class="card-subtitle mb-2">{{ veiculo.modelo }}</p>
+                        </div>
+                        <span class="status-badge bg-{{ veiculo.status_class }}">
+                            {{ veiculo.status }}
+                        </span>
+                    </div>
+
+                    <table class="table-horimetro">
+                        <tr>
+                            <th>Última troca:</th>
+                            <td>{{ veiculo.horimetro_ultima_troca or 'N/A' }}h</td>
+                        </tr>
+                        <tr>
+                            <th>Horímetro atual:</th>
+                            <td>{{ veiculo.horimetro_atual or 'N/A' }}h</td>
+                        </tr>
+                        <tr>
+                            <th>Próxima troca:</th>
+                            <td>{{ veiculo.horimetro_para_troca or 'N/A' }}h</td>
+                        </tr>
+                    </table>
+
+                    <div class="d-flex justify-content-between mt-3">
+                        <a href="{{ url_for('main.registrar_troca_oleo') }}?veiculo_id={{ veiculo.id }}"
+                            class="btn btn-sm btn-primary">
+                            <i class="bi bi-droplet"></i> Registrar Troca
+                        </a>
+                        <a href="{{ url_for('main.filtrar_inspecoes_frota') }}?placa={{ veiculo.placa }}"
+                            class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-clipboard-check"></i> Ver Inspeções
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
