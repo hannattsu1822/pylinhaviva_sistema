@@ -60,22 +60,24 @@
         <label class="form-label">O transformador foi reformado?*</label>
         <div class="radio-group">
             <label class="radio-option">
-                <input type="radio" name="reformado" value="Sim" id="reformado-sim">
+                <input type="radio" name="reformado" value="1" id="reformado-sim">
                 <span class="radiomark"></span>
                 <span>Sim</span>
             </label>
             <label class="radio-option">
-                <input type="radio" name="reformado" value="Não" checked>
+                <input type="radio" name="reformado" value="0" checked>
                 <span class="radiomark"></span>
                 <span>Não</span>
             </label>
         </div>
     </div>
 
-    <div class="form-group" id="data-reforma-group" style="display: none;">
-        <label class="form-label">Data da Reforma*</label>
-        <input type="date" class="form-control" name="data_reforma" pattern="\d{4}-\d{2}-\d{2}">
-        <small class="form-text text-muted">Formato: AAAA-MM-DD</small>
+    <div class="form-group" id="ano-reforma-group" style="display: none;">
+        <label class="form-label">Ano da Reforma*</label>
+        <input type="number" class="form-control" name="ano_reforma" 
+               min="1900" max="{{ current_year }}"
+               step="1" value="{{ current_year }}">
+        <small class="form-text text-muted">Formato: AAAA (ex: 2023)</small>
     </div>
 </div>
 
