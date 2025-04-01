@@ -190,47 +190,42 @@ def inspecao_trafo():
             corrosao_tanque = None
             if 'COM CORROSÃO' in estado_tanque:
                 corrosao_tanque = request.form.get('corrosao_grau')
-                estado_tanque = estado_tanque.replace(
-                    'COM CORROSÃO', '').strip()
+                estado_tanque = estado_tanque.replace('COM CORROSÃO', '').strip()
                 if estado_tanque.endswith(','):
                     estado_tanque = estado_tanque[:-1].strip()
 
-# Processar ano de fabricação
-data_fabricacao = None
-if request.form.get('data_fabricacao'):
-    try:
-        ano = request.form['data_fabricacao']
-        if len(ano) == 4 and ano.isdigit():
-            data_fabricacao = int(ano)  # ou ano se for VARCHAR
-        else:
-            raise ValueError
-    except ValueError:
-        flash('Ano de fabricação inválido. Use o formato AAAA (ex: 2023)', 'error')
-        return redirect(url_for('main.inspecao_trafo'))
+            # Processar ano de fabricação (agora apenas o ano)
+            data_fabricacao = None
+            if request.form.get('data_fabricacao'):
+                try:
+                    ano = request.form['data_fabricacao']
+                    if len(ano) != 4 or not ano.isdigit():
+                        raise ValueError
+                    data_fabricacao = int(ano)  # Armazenamos apenas o ano como inteiro
+                except ValueError:
+                    flash('Ano de fabricação inválido. Use o formato AAAA (ex: 2023)', 'error')
+                    return redirect(url_for('main.inspecao_trafo'))
 
-# Processar reformado
-reformado = request.form.get('reformado') == 'Sim'
-data_reformado = None
-if reformado and request.form.get('data_reforma'):
-    try:
-        ano = request.form['data_reforma']
-        if len(ano) == 4 and ano.isdigit():
-            data_reformado = int(ano)  # ou ano se for VARCHAR
-        else:
-            raise ValueError
-    except ValueError:
-        flash('Ano de reforma inválido. Use o formato AAAA (ex: 2023)', 'error')
-        return redirect(url_for('main.inspecao_trafo'))
+            # Processar reformado
+            reformado = request.form.get('reformado') == 'Sim'
+            data_reformado = None
+            if reformado and request.form.get('data_reforma'):
+                try:
+                    ano = request.form['data_reforma']
+                    if len(ano) != 4 or not ano.isdigit():
+                        raise ValueError
+                    data_reformado = int(ano)  # Armazenamos apenas o ano como inteiro
+                except ValueError:
+                    flash('Ano de reforma inválido. Use o formato AAAA (ex: 2023)', 'error')
+                    return redirect(url_for('main.inspecao_trafo'))
 
             # Processar buchas primárias
-            buchas_primarias = ', '.join(
-                request.form.getlist('buchas_primarias'))
+            buchas_primarias = ', '.join(request.form.getlist('buchas_primarias'))
             if 'Normal' in buchas_primarias and len(buchas_primarias.split(',')) > 1:
                 buchas_primarias = 'Normal'
 
             # Processar buchas secundárias
-            buchas_secundarias = ', '.join(
-                request.form.getlist('buchas_secundarias'))
+            buchas_secundarias = ', '.join(request.form.getlist('buchas_secundarias'))
             if 'Normal' in buchas_secundarias and len(buchas_secundarias.split(',')) > 1:
                 buchas_secundarias = 'Normal'
 
@@ -284,8 +279,7 @@ if reformado and request.form.get('data_reforma'):
 
         except Exception as e:
             mysql.connection.rollback()
-            current_app.logger.error(
-                f"Erro ao salvar inspeção: {str(e)}", exc_info=True)
+            current_app.logger.error(f"Erro ao salvar inspeção: {str(e)}", exc_info=True)
             flash(f'Erro ao salvar inspeção: {str(e)}', 'error')
             return redirect(url_for('main.inspecao_trafo'))
 
@@ -322,7 +316,6 @@ if reformado and request.form.get('data_reforma'):
         },
         form_data=request.form if request.method == 'POST' else None
     )
-
 
 @main_bp.route('/transformadores/filtrar')
 @login_required
