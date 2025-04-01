@@ -30,20 +30,12 @@
                 <span class="view-value">{{ checklist.numero_serie }}</span>
             </div>
             <div class="view-row">
-                <span class="view-label">Item:</span>
-                <span class="view-value">{{ checklist.item or 'Não informado' }}</span>
-            </div>
-            <div class="view-row">
                 <span class="view-label">Marca:</span>
                 <span class="view-value">{{ checklist.marca or 'Não informado' }}</span>
             </div>
             <div class="view-row">
                 <span class="view-label">Potência:</span>
-                <span class="view-value">{{ checklist.potencia or 'Não informado' }} kVA</span>
-            </div>
-            <div class="view-row">
-                <span class="view-label">N° de Fases:</span>
-                <span class="view-value">{{ checklist.numero_fases or 'Não informado' }}</span>
+                <span class="view-value">{{ checklist.potencia or 'Não informado' }}</span>
             </div>
         </div>
 
@@ -51,12 +43,16 @@
         <div class="view-section">
             <h2 class="section-title"><i class="fas fa-history"></i> Histórico</h2>
             <div class="view-row">
-                <span class="view-label">Ano de Fabricação:</span>
+                <span class="view-label">Data de Fabricação:</span>
                 <span class="view-value">
                     {% if checklist.data_fabricacao %}
-                        {{ checklist.data_fabricacao }}
+                    {% if checklist.data_fabricacao is string %}
+                    {{ checklist.data_fabricacao }}
                     {% else %}
-                        Não informado
+                    {{ checklist.data_fabricacao.strftime('%d/%m/%Y') }}
+                    {% endif %}
+                    {% else %}
+                    Não informada
                     {% endif %}
                 </span>
             </div>
@@ -66,12 +62,16 @@
             </div>
             {% if checklist.reformado %}
             <div class="view-row">
-                <span class="view-label">Ano da Reforma:</span>
+                <span class="view-label">Data da Reforma:</span>
                 <span class="view-value">
                     {% if checklist.data_reformado %}
-                        {{ checklist.data_reformado }}
+                    {% if checklist.data_reformado is string %}
+                    {{ checklist.data_reformado }}
                     {% else %}
-                        Não informado
+                    {{ checklist.data_reformado.strftime('%d/%m/%Y') }}
+                    {% endif %}
+                    {% else %}
+                    Não informada
                     {% endif %}
                 </span>
             </div>
@@ -83,13 +83,7 @@
             <h2 class="section-title"><i class="fas fa-oil-can"></i> Estado do Tanque</h2>
             <div class="view-row">
                 <span class="view-label">Condição:</span>
-                <span class="view-value">
-                    {% if checklist.detalhes_tanque_items %}
-                        {{ checklist.detalhes_tanque_items|join(', ') }}
-                    {% else %}
-                        Nenhuma observação
-                    {% endif %}
-                </span>
+                <span class="view-value">{{ checklist.detalhes_tanque or 'Nenhuma observação' }}</span>
             </div>
             {% if checklist.corrosao_tanque %}
             <div class="view-row">
@@ -104,13 +98,7 @@
             <h2 class="section-title"><i class="fas fa-plug"></i> Buchas Primárias</h2>
             <div class="view-row">
                 <span class="view-label">Condição:</span>
-                <span class="view-value">
-                    {% if checklist.buchas_primarias_items %}
-                        {{ checklist.buchas_primarias_items|join(', ') }}
-                    {% else %}
-                        Não informado
-                    {% endif %}
-                </span>
+                <span class="view-value">{{ checklist.buchas_primarias or 'Não informado' }}</span>
             </div>
         </div>
 
@@ -118,13 +106,7 @@
             <h2 class="section-title"><i class="fas fa-plug"></i> Buchas Secundárias</h2>
             <div class="view-row">
                 <span class="view-label">Condição:</span>
-                <span class="view-value">
-                    {% if checklist.buchas_secundarias_items %}
-                        {{ checklist.buchas_secundarias_items|join(', ') }}
-                    {% else %}
-                        Não informado
-                    {% endif %}
-                </span>
+                <span class="view-value">{{ checklist.buchas_secundarias or 'Não informado' }}</span>
             </div>
         </div>
 
@@ -133,13 +115,7 @@
             <h2 class="section-title"><i class="fas fa-bolt"></i> Conectores</h2>
             <div class="view-row">
                 <span class="view-label">Condição:</span>
-                <span class="view-value">
-                    {% if checklist.conectores_items %}
-                        {{ checklist.conectores_items|join(', ') }}
-                    {% else %}
-                        Não informado
-                    {% endif %}
-                </span>
+                <span class="view-value">{{ checklist.conectores or 'Não informado' }}</span>
             </div>
         </div>
 
@@ -148,21 +124,15 @@
             <h2 class="section-title"><i class="fas fa-tasks"></i> Ensaios</h2>
             <div class="view-row">
                 <span class="view-label">Bobina I:</span>
-                <span class="view-value badge {% if checklist.avaliacao_bobina_i == 'Normal' %}bg-success{% else %}bg-danger{% endif %}">
-                    {{ checklist.avaliacao_bobina_i }}
-                </span>
+                <span class="view-value">{{ checklist.avaliacao_bobina_i }}</span>
             </div>
             <div class="view-row">
                 <span class="view-label">Bobina II:</span>
-                <span class="view-value badge {% if checklist.avaliacao_bobina_ii == 'Normal' %}bg-success{% else %}bg-danger{% endif %}">
-                    {{ checklist.avaliacao_bobina_ii }}
-                </span>
+                <span class="view-value">{{ checklist.avaliacao_bobina_ii }}</span>
             </div>
             <div class="view-row">
                 <span class="view-label">Bobina III:</span>
-                <span class="view-value badge {% if checklist.avaliacao_bobina_iii == 'Normal' %}bg-success{% else %}bg-danger{% endif %}">
-                    {{ checklist.avaliacao_bobina_iii }}
-                </span>
+                <span class="view-value">{{ checklist.avaliacao_bobina_iii }}</span>
             </div>
         </div>
 
@@ -171,7 +141,8 @@
             <h2 class="section-title"><i class="fas fa-clipboard-check"></i> Conclusão</h2>
             <div class="view-row">
                 <span class="view-label">Status:</span>
-                <span class="view-value badge {% if checklist.conclusao == 'Normal' %}bg-success{% else %}bg-danger{% endif %}">
+                <span
+                    class="view-value badge {% if checklist.conclusao == 'Queimado' %}bg-danger{% else %}bg-success{% endif %}">
                     {{ checklist.conclusao }}
                 </span>
             </div>
@@ -200,15 +171,19 @@
             </div>
             <div class="view-row">
                 <span class="view-label">Supervisor Técnico:</span>
-                <span class="view-value">{{ checklist.supervisor_tecnico or 'Eng. Alisson' }}</span>
+                <span class="view-value">Eng. Alisson</span>
             </div>
             <div class="view-row">
                 <span class="view-label">Data da Inspeção:</span>
                 <span class="view-value">
                     {% if checklist.data_formulario %}
-                        {{ checklist.data_formulario.strftime('%d/%m/%Y %H:%M') }}
+                    {% if checklist.data_formulario is string %}
+                    {{ checklist.data_formulario }}
                     {% else %}
-                        Não informada
+                    {{ checklist.data_formulario.strftime('%d/%m/%Y %H:%M') }}
+                    {% endif %}
+                    {% else %}
+                    Não informada
                     {% endif %}
                 </span>
             </div>
@@ -216,18 +191,8 @@
 
         <!-- Botões de Ação -->
         <div class="view-actions">
-            {% if current_user.cargo in ['Engenheiro', 'Técnico'] %}
             <a href="{{ url_for('main.editar_checklist', id=checklist.id) }}" class="btn btn-warning">
                 <i class="fas fa-edit"></i> Editar
-            </a>
-            <form method="POST" action="{{ url_for('main.excluir_checklist', id=checklist.id) }}" style="display: inline;">
-                <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir este checklist?')">
-                    <i class="fas fa-trash-alt"></i> Excluir
-                </button>
-            </form>
-            {% endif %}
-            <a href="{{ url_for('main.gerar_pdf_checklist', id=checklist.id) }}" class="btn btn-info">
-                <i class="fas fa-file-pdf"></i> Gerar PDF
             </a>
             <a href="{{ url_for('main.filtrar_trafos') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Voltar
