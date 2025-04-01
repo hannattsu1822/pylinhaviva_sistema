@@ -195,32 +195,32 @@ def inspecao_trafo():
                 if estado_tanque.endswith(','):
                     estado_tanque = estado_tanque[:-1].strip()
 
-            # Processar ano de fabricação
-            data_fabricacao = None
-            if request.form.get('data_fabricacao'):
-                try:
-                    ano = request.form['data_fabricacao']
-                    if len(ano) != 4 or not ano.isdigit():
-                        raise ValueError
-                    data_fabricacao = datetime.strptime(ano, '%Y').date()
-                except ValueError:
-                    flash(
-                        'Ano de fabricação inválido. Use o formato AAAA (ex: 2023)', 'error')
-                    return redirect(url_for('main.inspecao_trafo'))
+# Processar ano de fabricação
+data_fabricacao = None
+if request.form.get('data_fabricacao'):
+    try:
+        ano = request.form['data_fabricacao']
+        if len(ano) == 4 and ano.isdigit():
+            data_fabricacao = int(ano)  # ou ano se for VARCHAR
+        else:
+            raise ValueError
+    except ValueError:
+        flash('Ano de fabricação inválido. Use o formato AAAA (ex: 2023)', 'error')
+        return redirect(url_for('main.inspecao_trafo'))
 
-            # Processar reformado
-            reformado = request.form.get('reformado') == 'Sim'
-            data_reformado = None
-            if reformado and request.form.get('data_reforma'):
-                try:
-                    ano = request.form['data_reforma']
-                    if len(ano) != 4 or not ano.isdigit():
-                        raise ValueError
-                    data_reformado = datetime.strptime(ano, '%Y').date()
-                except ValueError:
-                    flash(
-                        'Ano de reforma inválido. Use o formato AAAA (ex: 2023)', 'error')
-                    return redirect(url_for('main.inspecao_trafo'))
+# Processar reformado
+reformado = request.form.get('reformado') == 'Sim'
+data_reformado = None
+if reformado and request.form.get('data_reforma'):
+    try:
+        ano = request.form['data_reforma']
+        if len(ano) == 4 and ano.isdigit():
+            data_reformado = int(ano)  # ou ano se for VARCHAR
+        else:
+            raise ValueError
+    except ValueError:
+        flash('Ano de reforma inválido. Use o formato AAAA (ex: 2023)', 'error')
+        return redirect(url_for('main.inspecao_trafo'))
 
             # Processar buchas primárias
             buchas_primarias = ', '.join(
