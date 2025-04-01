@@ -20,10 +20,10 @@
                     <span>Linha Viva</span>
                 </div>
                 <div class="user-info">
-                    <h5>Hugo Pessanha</h5>
-                    <small>Estagiário</small>
+                    <h5>{{ session.get('nome', 'Usuário') }}</h5>
+                    <small>{{ session.get('cargo', 'Cargo não definido') }}</small>
                     <div class="matricula-badge">
-                        <i class="bi bi-person-vcard"></i> 4038
+                        <i class="bi bi-person-vcard"></i> {{ session.get('matricula', '0000') }}
                     </div>
                 </div>
             </div>
