@@ -190,42 +190,33 @@ def inspecao_trafo():
             corrosao_tanque = None
             if 'COM CORROSÃO' in estado_tanque:
                 corrosao_tanque = request.form.get('corrosao_grau')
-                estado_tanque = estado_tanque.replace('COM CORROSÃO', '').strip()
+                estado_tanque = estado_tanque.replace(
+                    'COM CORROSÃO', '').strip()
                 if estado_tanque.endswith(','):
                     estado_tanque = estado_tanque[:-1].strip()
 
-            # Processar ano de fabricação (agora apenas o ano)
+            # Processar data de fabricação
             data_fabricacao = None
             if request.form.get('data_fabricacao'):
-                try:
-                    ano = request.form['data_fabricacao']
-                    if len(ano) != 4 or not ano.isdigit():
-                        raise ValueError
-                    data_fabricacao = int(ano)  # Armazenamos apenas o ano como inteiro
-                except ValueError:
-                    flash('Ano de fabricação inválido. Use o formato AAAA (ex: 2023)', 'error')
-                    return redirect(url_for('main.inspecao_trafo'))
+                data_fabricacao = datetime.strptime(
+                    request.form['data_fabricacao'], '%Y-%m-%d').date()
 
             # Processar reformado
             reformado = request.form.get('reformado') == 'Sim'
             data_reformado = None
-            if reformado and request.form.get('data_reforma'):
-                try:
-                    ano = request.form['data_reforma']
-                    if len(ano) != 4 or not ano.isdigit():
-                        raise ValueError
-                    data_reformado = int(ano)  # Armazenamos apenas o ano como inteiro
-                except ValueError:
-                    flash('Ano de reforma inválido. Use o formato AAAA (ex: 2023)', 'error')
-                    return redirect(url_for('main.inspecao_trafo'))
+            if reformado and request.form.get('data_reformado'):
+                data_reformado = datetime.strptime(
+                    request.form['data_reformado'], '%Y-%m-%d').date()
 
             # Processar buchas primárias
-            buchas_primarias = ', '.join(request.form.getlist('buchas_primarias'))
+            buchas_primarias = ', '.join(
+                request.form.getlist('buchas_primarias'))
             if 'Normal' in buchas_primarias and len(buchas_primarias.split(',')) > 1:
                 buchas_primarias = 'Normal'
 
             # Processar buchas secundárias
-            buchas_secundarias = ', '.join(request.form.getlist('buchas_secundarias'))
+            buchas_secundarias = ', '.join(
+                request.form.getlist('buchas_secundarias'))
             if 'Normal' in buchas_secundarias and len(buchas_secundarias.split(',')) > 1:
                 buchas_secundarias = 'Normal'
 
@@ -279,7 +270,8 @@ def inspecao_trafo():
 
         except Exception as e:
             mysql.connection.rollback()
-            current_app.logger.error(f"Erro ao salvar inspeção: {str(e)}", exc_info=True)
+            current_app.logger.error(
+                f"Erro ao salvar inspeção: {str(e)}", exc_info=True)
             flash(f'Erro ao salvar inspeção: {str(e)}', 'error')
             return redirect(url_for('main.inspecao_trafo'))
 
@@ -316,6 +308,7 @@ def inspecao_trafo():
         },
         form_data=request.form if request.method == 'POST' else None
     )
+
 
 @main_bp.route('/transformadores/filtrar')
 @login_required
@@ -792,34 +785,104 @@ def gerar_pdf_checklist(id):
 def editar_checklist(id):
     try:
         if request.method == 'POST':
-            # Processar ano de fabricação
-            data_fabricacao = None
-            if request.form.get('data_fabricacao'):
-                try:
-                    ano = request.form['data_fabricacao']
-                    if len(ano) != 4 or not ano.isdigit():
-                        raise ValueError
-                    data_fabricacao = datetime.strptime(ano, '%Y').date()
-                except ValueError:
-                    flash(
-                        'Ano de fabricação inválido. Use o formato AAAA (ex: 2023)', 'error')
+            # Processar checkboxes
+            estado_tanque = ', '.join(
+                filter(None, request.form.getlist('estado_tanque')))
+
+            # Tratar corrosão
+            corrosao_tanque = None
+            if 'COM CORROSÃO' in estado_tanque:
+                corrosao_tanque = request.form.get('corrosao_grau')
+                estado_tanque = estado_tanque.replace(
+                    'COM CORROSÃO', '').strip().rstrip(',')
+
+            # Processar datas
+            data_fabricacao = request.form.get('data_fabricacao') or None
+            data_reformado = request.form.get('data_reformado') or None
+
+            # Converter para tinyint (1 ou 0)
+            reformado = 1 if request.form.get('reformado') == 'Sim' else 0
+
+            # Processar campos múltiplos
+            def processar_campo(campo):
+                valores = [v for v in request.form.getlist(campo) if v]
+                return ', '.join(valores) if valores else None
+
+            buchas_primarias = processar_campo('buchas_primarias')
+            buchas_secundarias = processar_campo('buchas_secundarias')
+            conectores = processar_campo('conectores')
+
+            # Validar campos obrigatórios
+            campos_obrigatorios = {
+                'numero_serie': 'Número de série',
+                'avaliacao_bobina_i': 'Avaliação da Bobina I',
+                'avaliacao_bobina_ii': 'Avaliação da Bobina II',
+                'avaliacao_bobina_iii': 'Avaliação da Bobina III',
+                'conclusao': 'Conclusão',
+                'transformador_destinado': 'Destinação'
+            }
+
+            for campo, nome in campos_obrigatorios.items():
+                if not request.form.get(campo):
+                    flash(f'O campo {nome} é obrigatório', 'error')
                     return redirect(url_for('main.editar_checklist', id=id))
 
-            # Processar ano de reforma
-            data_reformado = None
-            if request.form.get('data_reformado'):
-                try:
-                    ano = request.form['data_reformado']
-                    if len(ano) != 4 or not ano.isdigit():
-                        raise ValueError
-                    data_reformado = datetime.strptime(ano, '%Y').date()
-                except ValueError:
-                    flash(
-                        'Ano de reforma inválido. Use o formato AAAA (ex: 2023)', 'error')
-                    return redirect(url_for('main.editar_checklist', id=id))
+            # Preparar dados
+            form_data = {
+                'numero_serie': request.form['numero_serie'],
+                'detalhes_tanque': estado_tanque or None,
+                'corrosao_tanque': corrosao_tanque,
+                'data_fabricacao': data_fabricacao,
+                'reformado': reformado,
+                'data_reformado': data_reformado,
+                'buchas_primarias': buchas_primarias,
+                'buchas_secundarias': buchas_secundarias,
+                'conectores': conectores,
+                'avaliacao_bobina_i': request.form['avaliacao_bobina_i'],
+                'avaliacao_bobina_ii': request.form['avaliacao_bobina_ii'],
+                'avaliacao_bobina_iii': request.form['avaliacao_bobina_iii'],
+                'conclusao': request.form['conclusao'],
+                'transformador_destinado': request.form['transformador_destinado'],
+                'observacoes': request.form.get('observacoes') or None,
+                'matricula_responsavel': session['matricula'],
+                'id': id
+            }
 
-            # Resto do código de processamento do formulário...
-            # ... (manter todo o resto do código existente)
+            with mysql.connection.cursor() as cur:
+                # Verificar duplicidade de número de série
+                if request.form['numero_serie'] != request.form['numero_serie_original']:
+                    cur.execute("SELECT id FROM checklist_transformadores WHERE numero_serie = %s AND id != %s",
+                                (form_data['numero_serie'], id))
+                    if cur.fetchone():
+                        flash(
+                            'Já existe um checklist com este número de série', 'error')
+                        return redirect(url_for('main.editar_checklist', id=id))
+
+                # Atualizar checklist
+                cur.execute("""
+                    UPDATE checklist_transformadores SET
+                        numero_serie = %(numero_serie)s,
+                        detalhes_tanque = %(detalhes_tanque)s,
+                        corrosao_tanque = %(corrosao_tanque)s,
+                        data_fabricacao = %(data_fabricacao)s,
+                        reformado = %(reformado)s,
+                        data_reformado = %(data_reformado)s,
+                        buchas_primarias = %(buchas_primarias)s,
+                        buchas_secundarias = %(buchas_secundarias)s,
+                        conectores = %(conectores)s,
+                        avaliacao_bobina_i = %(avaliacao_bobina_i)s,
+                        avaliacao_bobina_ii = %(avaliacao_bobina_ii)s,
+                        avaliacao_bobina_iii = %(avaliacao_bobina_iii)s,
+                        conclusao = %(conclusao)s,
+                        transformador_destinado = %(transformador_destinado)s,
+                        observacoes = %(observacoes)s,
+                        matricula_responsavel = %(matricula_responsavel)s
+                    WHERE id = %(id)s
+                """, form_data)
+
+                mysql.connection.commit()
+                flash('Checklist atualizado com sucesso!', 'success')
+                return redirect(url_for('main.visualizar_checklist', id=id))
 
         # GET Request
         with mysql.connection.cursor() as cur:
@@ -838,17 +901,32 @@ def editar_checklist(id):
             # Converter para dicionário
             checklist = dict(checklist)
 
-            # Converter datas para apenas o ano
-            if checklist['data_fabricacao']:
-                checklist['data_fabricacao'] = checklist['data_fabricacao'].year
-            if checklist['data_reformado']:
-                checklist['data_reformado'] = checklist['data_reformado'].year
+            # Converter tinyint para booleano
+            checklist['reformado'] = bool(checklist['reformado'])
 
-            # Resto do código GET...
-            # ... (manter todo o resto do código existente)
+            # Processar campos múltiplos
+            for campo in ['detalhes_tanque', 'buchas_primarias', 'buchas_secundarias', 'conectores']:
+                checklist[f'{campo}_items'] = checklist[campo].split(
+                    ', ') if checklist.get(campo) else []
+
+            # Obter transformadores para dropdown
+            cur.execute(
+                "SELECT numero_serie, marca, potencia FROM transformadores ORDER BY numero_serie")
+            transformadores = cur.fetchall()
+
+        return render_template(
+            'transformadores/editar_checklist.html',
+            checklist=checklist,
+            transformadores=transformadores,
+            current_user={
+                'nome': session.get('nome'),
+                'matricula': session.get('matricula'),
+                'cargo': session.get('cargo')
+            },
+            data_atual=datetime.now().strftime('%d/%m/%Y %H:%M')
+        )
 
     except Exception as e:
-        # Tratamento de erro permanece igual
         mysql.connection.rollback()
         current_app.logger.error(
             f"Erro ao editar checklist {id}: {str(e)}", exc_info=True)
@@ -1716,10 +1794,8 @@ def checar_horimetro_frota():
                 horimetro_para_troca = row['horimetro_ultima_troca'] + 300
 
                 if row['horimetro_atual'] is not None:
-                    horas_consumidas = row['horimetro_atual'] - \
-                        row['horimetro_ultima_troca']
-                    progresso = min(
-                        100, max(0, (horas_consumidas / 300) * 100))
+                    horas_consumidas = row['horimetro_atual'] - row['horimetro_ultima_troca']
+                    progresso = min(100, max(0, (horas_consumidas / 300) * 100))
 
                     if horas_consumidas >= 300:
                         status = "Troca Atrasada"
